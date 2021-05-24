@@ -24,7 +24,7 @@ extern class LuaL {
     @:native('luaL_argerror')
     static function argerror(l:State, narg:Int, extramsg:String) : Int;
 
-    @:native('luaL_error')
+    @:native('linc::lual::error')
     static function error(l:State, fmt:String) : Int;
 
     @:native('linc::lual::checklstring')

@@ -164,6 +164,10 @@ namespace linc {
 
         }
 
+        void error(lua_State *L, const char* fmt) {
+            luaL_error(L,fmt,"");
+        }
+
         ::String ltypename(lua_State *L, int idx){
 
             return ::String(luaL_typename(L, idx));

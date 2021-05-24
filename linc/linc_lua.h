@@ -43,6 +43,7 @@ namespace linc {
         extern ::String checkstring(lua_State *L, int n);
         extern ::String optstring(lua_State *L, int n, const char *d);
         extern ::String ltypename(lua_State *L, int idx);
+        extern void error(lua_State* L, const char* fmt);
 
     }
 

@@ -27,7 +27,7 @@ class Convert {
 			case Type.ValueType.TObject:
 				objectToLua(l, val); // {}
 			default:
-				trace("haxe value not supported\n");
+				trace("haxe value not supported\n"+val+" - "+Type.typeof(val) );
 				return false;
 		}
 
@@ -50,7 +50,14 @@ class Convert {
 
 	static inline function objectToLua(l:State, res:Any) {
 
-		Lua.createtable(l, 0, 0); // TODO: find table length ?
+		var tLen = 0;
+
+		for(n in Reflect.fields(res))
+		{
+			tLen++;
+		}
+
+		Lua.createtable(l, tLen, 0);
 		for (n in Reflect.fields(res)){
 			Lua.pushstring(l, n);
 			toLua(l, Reflect.field(res, n));
