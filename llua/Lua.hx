@@ -133,6 +133,14 @@ extern class Lua {
 		return _isuserdata(l, idx) != 0;
 	}
 
+	@:noCompletion
+	@:native('lua_isboolean')
+	static function _isboolean(l:State, idx:Int) : Int;
+
+	static inline function isboolean(l:State, idx:Int) : Bool {
+		return _isboolean(l, idx) != 0;
+	}
+
 	@:native('lua_type')
 	static function type(l:State, idx:Int) : Int;
 
@@ -367,9 +375,6 @@ extern class Lua {
 
 	@:native('lua_isnil')
 	static function isnil(l:State, idx:Int) : Int;
-
-	@:native('lua_isboolean')
-	static function isboolean(l:State, idx:Int) : Int;
 
 	@:native('lua_isthread')
 	static function isthread(l:State, idx:Int) : Int;
