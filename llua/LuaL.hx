@@ -3,7 +3,7 @@ package llua;
 
 import llua.State;
 import llua.Buffer;
-
+import llua.Lua;
 
 @:include('linc_lua.h')
 extern class LuaL {
@@ -50,6 +50,10 @@ extern class LuaL {
 
     @:native('luaL_checktype')
     static function checktype(l:State, narg:Int, t:Int) : Void;
+
+    static inline function checktable(l:State, idx:Int) : Bool {
+      return checktype(l,idx,Lua.LUA_TTABLE)
+    }
 
     @:native('luaL_checkany')
     static function checkany(l:State, narg:Int) : Void;
