@@ -98,7 +98,7 @@ class Convert {
 			// 	trace("thread\n");
 			default:
 				ret = null;
-				trace("return value not supported\n"+val+" - "+Type.typeof(val));
+				trace("return value not supported\n"+Type.typeof(v));
 		}
 
 		return ret;

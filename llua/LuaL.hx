@@ -51,7 +51,7 @@ extern class LuaL {
     @:native('luaL_checktype')
     static function checktype(l:State, narg:Int, t:Int) : Void;
 
-    static inline function checktable(l:State, idx:Int) : Bool {
+    static inline function checktable(l:State, idx:Int) : Void {
       return checktype(l,idx,Lua.LUA_TTABLE);
     }
 
