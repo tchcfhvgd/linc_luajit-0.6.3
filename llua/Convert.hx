@@ -2,8 +2,10 @@ package llua;
 
 
 import llua.State;
-
-
+import llua.Lua;
+import llua.LuaL;
+import llua.Macro.*;
+import haxe.DynamicAccess;
 class Convert {
 
 	/**
@@ -83,7 +85,7 @@ class Convert {
 			case Lua.LUA_TSTRING:
 				ret = Lua.tostring(l, v);
 			case Lua.LUA_TTABLE:
-				ret = fromLuaTable(l);
+				ret = toHaxeObj(l, v);
 			// case Lua.LUA_TFUNCTION:
 			// 	ret = LuaL.ref(l, Lua.LUA_REGISTRYINDEX);
 			// 	trace("function\n");
@@ -105,7 +107,7 @@ class Convert {
 
 	}
 
-	static inline function fromLuaTable(l:State):Any {
+	/*static inline function fromLuaTable(l:State):Any {
 
 		var array:Bool = true;
 		var ret:Any = null;
@@ -158,8 +160,44 @@ class Convert {
 
 	}
 
-}
+}*/
+	static function toHaxeObj(l, i:Int):Any {
+		var count = 0;
+		var array = true;
 
+		loopTable(l, i, {
+			if(array) {
+				if(Lua.type(l, -2) != Lua.LUA_TNUMBER) array = false;
+				else {
+					var index = Lua.tonumber(l, -2);
+					if(index < 0 || Std.int(index) != index) array = false;
+				}
+			}
+			count++;
+		});
+
+		return
+		if(count == 0) {
+			{};
+		} else if(array) {
+			var v = [];
+			loopTable(l, i, {
+				var index = Std.int(Lua.tonumber(l, -2)) - 1;
+				v[index] = fromLua(l, -1);
+			});
+			cast v;
+		} else {
+			var v:DynamicAccess<Any> = {};
+			loopTable(l, i, {
+				switch Lua.type(l, -2) {
+					case t if(t == Lua.LUA_TSTRING): v.set(Lua.tostring(l, -2), fromLua(l, -1));
+					case t if(t == Lua.LUA_TNUMBER):v.set(Std.string(Lua.tonumber(l, -2)), fromLua(l, -1));
+				}
+			});
+			cast v;
+		}
+	}
+}
 
 // Anon_obj from hxcpp
 @:include('hxcpp.h')
