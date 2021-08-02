@@ -110,6 +110,14 @@ extern class Lua {
 	}
 
 	@:noCompletion
+	@:native('lua_isfunction')
+	static function _isfunction(l:State, idx:Int) : Int;
+
+	static inline function isfunction(l:State, idx:Int) : Bool {
+		return _isfunction(l, idx) != 0;
+	}
+
+	@:noCompletion
 	@:native('lua_isstring')
 	static function _isstring(l:State, idx:Int) : Int;
 
@@ -363,9 +371,6 @@ extern class Lua {
 
 	@:native('lua_strlen')
 	static function strlen(l:State, idx:Int) : Int;
-
-	@:native('lua_isfunction')
-	static function isfunction(l:State, idx:Int) : Int;
 
 	@:native('lua_istable')
 	static function istable(l:State, idx:Int) : Int;
