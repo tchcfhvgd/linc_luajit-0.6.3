@@ -10,12 +10,16 @@
     <files id="__main__">
         <compilerflag value='-I${LINC_LUA_PATH}linc/'/>
     </files>
-    
+
     <target id="haxe">
         <section if="windows">
             <lib name='${LINC_LUA_PATH}lib/Lua/lib/Windows64/lua51.lib' if='HXCPP_M64' />
             <lib name='${LINC_LUA_PATH}lib/Lua/lib/Windows/lua51.lib' if='HXCPP_M32' />
         </section>
+        <section if="linux">
+            <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Linux64/libluajit.so' if='HXCPP_M64' />
+            <!-- <lib name='${LINC_LUA_PATH}/lib/Lua/lib/Linux/libluajit.so' if='HXCPP_M32' /> -->
+</section>
     </target>
 
 </xml>
