@@ -30,6 +30,18 @@ namespace linc {
 
         }
 
+        ::cpp::Function<int(lua_State*)> tocfunction(lua_State* l, int i) {
+            return (::cpp::Function<int(lua_State*)>) lua_tocfunction(l, i);
+        }
+
+        void pushcclosure(lua_State* l, ::cpp::Function<int(lua_State*)> fn, int n) {
+            lua_pushcclosure(l, (lua_CFunction)fn, n);
+        }
+
+        void pushcfunction(lua_State* l, ::cpp::Function<int(lua_State*)> fn) {
+            lua_pushcfunction(l, (lua_CFunction)fn);
+        }
+
         ::String _typename(lua_State *l, int v){
 
             return ::String(lua_typename(l, v));
@@ -152,6 +164,10 @@ namespace linc {
 
         }
 
+        void error(lua_State *L, const char* fmt) {
+            luaL_error(L,fmt,"");
+        }
+
         ::String ltypename(lua_State *L, int idx){
 
             return ::String(luaL_typename(L, idx));
@@ -192,9 +208,9 @@ namespace linc {
 
             std::stringstream buffer;
             int n = lua_gettop(L);  /* number of arguments */
-            
+
             lua_getglobal(L,"tostring");
-            
+
             for ( int i = 1;  i <= n;  ++i ){
                 const char* s = NULL;
                 size_t      l = 0;
@@ -207,7 +223,7 @@ namespace linc {
                 if ( s == NULL ){
                     return luaL_error(L,LUA_QL("tostring") " must return a string to " LUA_QL("print"));
                 }
-                
+
                 if ( i>1 ){
                     buffer << "\t";
                 }
@@ -219,7 +235,7 @@ namespace linc {
 
             // std::cout << buffer.str(); // c++ out
             print_fn(::String(buffer.str().c_str())); // hx out
-            
+
             return 0;
 
         }
@@ -248,7 +264,7 @@ namespace linc {
     } //helpers
 
     namespace callbacks {
-        
+
         static luaCallbackFN event_fn = 0;
         static int luaCallback(lua_State *L){
 
