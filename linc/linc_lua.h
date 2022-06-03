@@ -1,16 +1,12 @@
-#ifndef _LINC_LUA_H_
-#define _LINC_LUA_H_
+#pragma once
 
-
-#ifndef HXCPP_H
-    #include <hxcpp.h>
-#endif
+#include <hxcpp.h>
+#include <hx/CFFI.h>
 
 #include <sstream>
 #include <iostream>
 
-#include "../lib/Lua/src/lua.hpp"
-
+#include "../lib/lua/src/lua.hpp"
 
 namespace linc {
 
@@ -29,22 +25,18 @@ namespace linc {
         extern int getstack(lua_State *L, int level, Dynamic ar);
         extern int getinfo(lua_State *L, const char *what, Dynamic ar);
 
-        extern ::cpp::Function<int(lua_State*)> tocfunction(lua_State* l, int i);
-        extern void pushcclosure(lua_State* l, ::cpp::Function<int(lua_State*)> fn, int n);
-        extern void pushcfunction(lua_State* l, ::cpp::Function<int(lua_State*)> fn);
-
     } // lua
+
     namespace lual {
 
-        extern ::String checklstring(lua_State* l, int numArg, size_t* len);
-        extern ::String optlstring(lua_State* L, int numArg, const char* def, size_t* l);
-        extern ::String prepbuffer(luaL_Buffer* B);
-        extern ::String gsub(lua_State* l, const char* s, const char* p, const char* r);
-        extern ::String findtable(lua_State* L, int idx, const char* fname, int szhint);
-        extern ::String checkstring(lua_State* L, int n);
-        extern ::String optstring(lua_State* L, int n, const char* d);
-        extern ::String ltypename(lua_State* L, int idx);
-        extern void error(lua_State* L, const char* fmt);
+        extern ::String checklstring(lua_State *l, int numArg, size_t *len);
+        extern ::String optlstring(lua_State *L, int numArg, const char *def, size_t *l);
+        extern ::String prepbuffer(luaL_Buffer *B);
+        extern ::String gsub(lua_State *l, const char *s, const char *p, const char *r);
+        extern ::String findtable(lua_State *L, int idx, const char *fname, int szhint);
+        extern ::String checkstring(lua_State *L, int n);
+        extern ::String optstring(lua_State *L, int n, const char *d);
+        extern ::String ltypename(lua_State *L, int idx);
 
     }
 
@@ -61,10 +53,8 @@ namespace linc {
         extern void set_callbacks_function(luaCallbackFN fn);
         extern void add_callback_function(lua_State *L, const char *name);
         extern void remove_callback_function(lua_State *L, const char *name);
-
+        
     }
 
 
 } //linc
-
-#endif //_LINC_LUA_H_
