@@ -609,23 +609,22 @@ class Lua_helper {
 			}
 
 			var ret:Dynamic = Reflect.callMethod(null,cbf,args);
-			if (ret != null)
+			if (ret != null) {
 				Convert.toLua(l, ret);
-			
-			return 1;
+				return 1; // return the number of results (just 1)
+			}
 		}
 		catch(e:Dynamic){
-			if(sendErrorsToLua) {
+			if (sendErrorsToLua) {
 				LuaL.error(l, 'CALLBACK ERROR! ' + (e.message != null ? e.message : e));
 				return 0;
 			}
 			trace(e);
 			throw(e);
 		}
+
 		return 0;
-
 	} 
-
 }
 
 typedef Lua_Debug = {
