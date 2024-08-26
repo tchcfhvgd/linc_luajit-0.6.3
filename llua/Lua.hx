@@ -365,11 +365,9 @@ extern class Lua {
 	static function newtable(l:State) : Void;
 
 	static inline function register(l:State, name:String, f:Dynamic) : Void {
-
-		if(Type.typeof(f) == Type.ValueType.TFunction && !Lua_helper.getStateCallbacks(l).exists(name)){
+		if (Type.typeof(f) == Type.ValueType.TFunction && !Lua_helper.hasCallback(l, name)){
 			Lua_helper.add_callback(l, name, f);
 		}
-
 	}
 
  	@:native('linc::lua::pushcfunction') //?
@@ -550,17 +548,16 @@ class Lua_helper {
 
 	public static var callbacks = new Map<String, Map<String, Function>>();
 	
-	public static inline function clearCallbacks(l:State, fname:String)
+	public static inline function clearCallbacks(l:State)
 		callbacks.remove(Std.string(l));
 	
 	public static inline function hasCallback(l:State, fname:String) {
 		var lel:String = Std.string(l);
 		return callbacks.exists(lel) && callbacks.get(lel).exists(fname);
 	}
-
-	public static inline function add_callback(l:State, fname:String, f:Function):Bool {
+	public static inline function getCallbacks(l:State) {
 		var stateCallbacks:Map<String, Function>;
-		var lel:String = l.toString();
+		var lel:String = Std.string(l);
 		
 		if (callbacks.exists(lel))
 			stateCallbacks = callbacks.get(lel);
@@ -569,6 +566,11 @@ class Lua_helper {
 			callbacks.set(lel, stateCallbacks);
 		}
 
+		return stateCallbacks;
+	}
+
+	public static inline function add_callback(l:State, fname:String, f:Function):Bool {
+		getCallbacks(l).set(fname, f);
 		Lua.add_callback_function(l, fname);
 		return true;
 	}
