@@ -1,7 +1,6 @@
 package llua;
 
 
-import haxe.Constraints.Function;
 import llua.State;
 import llua.Convert;
 
@@ -64,12 +63,7 @@ extern class Lua {
 	// static function newstate(f:lua_Alloc, ud:Void) : State;
 
 	@:native('lua_close')
-	static function _close(l:State) : Void;
-
-	static inline function close(l:State) : Void {
-		Lua_helper.clearCallbacks(l);
-		_close(l);
-	}
+	static function close(l:State) : Void;
 
 	@:native('lua_newthread')
 	static function newthread(l:State) : State;
@@ -365,9 +359,11 @@ extern class Lua {
 	static function newtable(l:State) : Void;
 
 	static inline function register(l:State, name:String, f:Dynamic) : Void {
-		if (Type.typeof(f) == Type.ValueType.TFunction && !Lua_helper.hasCallback(l, name)){
+
+		if(Type.typeof(f) == Type.ValueType.TFunction && !Lua_helper.callbacks.exists(name)){
 			Lua_helper.add_callback(l, name, f);
 		}
+
 	}
 
  	@:native('linc::lua::pushcfunction') //?
@@ -543,88 +539,55 @@ class Lua_helper {
 	}
 
 	public static dynamic function trace(s:String, ?inf:haxe.PosInfos):Void {
+
 		trace(s);
+
 	}
 
-	public static var callbacks = new Map<String, Map<String, Function>>();
-	
-	public static inline function clearCallbacks(l:State)
-		callbacks.remove(Std.string(l));
-	
-	public static inline function hasCallback(l:State, fname:String) {
-		var lel:String = Std.string(l);
-		return callbacks.exists(lel) && callbacks.get(lel).exists(fname);
-	}
-	public static inline function getCallbacks(l:State) {
-		var stateCallbacks:Map<String, Function>;
-		var lel:String = Std.string(l);
-		
-		if (callbacks.exists(lel))
-			stateCallbacks = callbacks.get(lel);
-		else{
-			stateCallbacks = new Map();
-			callbacks.set(lel, stateCallbacks);
-		}
+	public static var callbacks:Map<String, Dynamic> = new Map();
 
-		return stateCallbacks;
-	}
+	public static inline function add_callback(l:State, fname:String, f:Dynamic):Bool {
 
-	public static inline function add_callback(l:State, fname:String, f:Function):Bool {
-		getCallbacks(l).set(fname, f);
+		callbacks.set(fname, f);
 		Lua.add_callback_function(l, fname);
 		return true;
+
 	}
 
 	public static inline function remove_callback(l:State, fname:String):Bool {
-		var lel:String = Std.string(l);
-		if (!callbacks.exists(lel))
-			return false;
-		
-		callbacks.get(lel).remove(fname);
 
+		callbacks.remove(fname);
 		Lua.remove_callback_function(l, fname);
 		return true;
+
 	}
 
-	public static var sendErrorsToLua:Bool = true;
 	public static inline function callback_handler(l:State, fname:String):Int {
-		try{
-			var lel:String = Std.string(l);
-			if (!callbacks.exists(lel)){
-				trace(l, fname, 1);
-				return 0;
-			}
-			
-			var cbf:Null<Function> = callbacks.get(lel).get(fname);
-			if (cbf == null){
-				trace(l, fname, 2);
-				return 0;
-			} 
 
-			var nparams:Int = Lua.gettop(l);
-			var args:Array<Dynamic> = [];
+		var cbf = callbacks.get(fname);
 
-			for (i in 0...nparams) {
-				args[i] = Convert.fromLua(l, i + 1);
-			}
-
-			var ret:Dynamic = Reflect.callMethod(null,cbf,args);
-			if (ret != null) {
-				Convert.toLua(l, ret);
-				return 1; // return the number of results (just 1)
-			}
-		}
-		catch(e:Dynamic){
-			if (sendErrorsToLua) {
-				LuaL.error(l, 'CALLBACK ERROR! ' + (e.message != null ? e.message : e));
-				return 0;
-			}
-			trace(e);
-			throw(e);
+		if(cbf == null) {
+			return 0;
 		}
 
-		return 0;
-	} 
+		var nparams:Int = Lua.gettop(l);
+		var args:Array<Dynamic> = [];
+
+		for (i in 0...nparams) {
+			args[i] = Convert.fromLua(l, i + 1);
+		}
+
+		var ret:Dynamic = Reflect.callMethod(null, cbf, args);
+
+		if(ret != null){
+			Convert.toLua(l, ret);
+		}
+
+		/* return the number of results */
+		return 1;
+
+	} //callback_handler
+
 }
 
 typedef Lua_Debug = {
